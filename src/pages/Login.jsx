@@ -46,7 +46,7 @@ const Login = () => {
               </div>
           </div>
             
-          <div className="border-b border-dashed border-gray-600 my-2"> </div>  
+          <div className="border-b border-dashed border-gray-600 my-2"></div>  
 
 
           <div className="w-full mt-5 ">

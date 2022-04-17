@@ -2,7 +2,7 @@ import React from 'react'
 
 const Sidebar = () => {
   return (
-    <nav className="w-72 bg-violet-400">sidebar</nav>
+    <nav className="flex flex-col w-72 border border-gray-300 justify-between">sidebar</nav>
   )
 }
 
