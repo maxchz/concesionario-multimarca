@@ -1,8 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import {FaHome}  from "react-icons/fa";
-import logoemp from 'media/logoft1.png';
-
+import ImagenLogo from 'components/ImagenLogo';
 
 const AuthLayout = ({children}) => {
   return (
@@ -16,7 +15,7 @@ const AuthLayout = ({children}) => {
       </Link>
 
       <div className="flex justify-center w-full ">
-        <img src={logoemp} alt="logo de empresa" />
+        <ImagenLogo/>
       </div>
 
       
