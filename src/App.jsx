@@ -8,10 +8,7 @@ import Clientes from 'pages/admin/Clientes';
 import Vehiculos from 'pages/admin/Vehiculos';
 import Admin from 'pages/admin/index';
 import {darkModeContext} from 'context/darkMode';
-import  'styles/responsive.css';
-
-
-
+// import  'styles/responsive.css';
 import 'styles/styles.css';
 
 
