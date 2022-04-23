@@ -6,6 +6,7 @@ import Registro from 'pages/Registro';
 import Index from 'pages/Index';
 import Clientes from 'pages/admin/Clientes';
 import Vehiculos from 'pages/admin/Vehiculos';
+import Ventas from 'pages/admin/Ventas';
 import Admin from 'pages/admin/index';
 import {darkModeContext} from 'context/darkMode';
 // import  'styles/responsive.css';
@@ -34,6 +35,8 @@ function App() {
               <Route path='/admin' element={<Admin/>}/>
               <Route path='/admin/clientes' element={<Clientes/>}/>
               <Route path='/admin/vehiculos' element={<Vehiculos/>}/>
+              <Route path='/admin/ventas' element={<Ventas/>}/>
+
               <Route path='/' element={<Index/>} />                
                         
             </Routes>
