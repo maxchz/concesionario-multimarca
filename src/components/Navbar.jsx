@@ -10,15 +10,16 @@ const Navbar = () => {
         <li>Logo</li>
         <li>Navegacion1</li>
         <li>Navegacion2</li>
-        <li> <TriggerDarkMode/>    </li>
+        <li> <TriggerDarkMode/> </li>
         <li className="px-5">
           <Link to='/login'>
             <button className="bg-violet-700 p-2 text-white rounded-lg shadow-md hover:bg-violet-500">
               Iniciar Sesión
             </button>
           </Link>
-          
+         
         </li>
+        
 
       </ul>
         
@@ -28,3 +29,4 @@ const Navbar = () => {
 }
 
 export default Navbar;
+
