@@ -4,6 +4,8 @@ import PrivateLayout from 'layouts/PrivateLayout';
 import { ToastContainer, toast } from 'react-toastify';
 import Tooltip from '@mui/material/Tooltip';
 import Dialog from '@mui/material/Dialog';
+import axios from "axios";
+
 
 
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,41 +14,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // realizar un formulario que pida a usuario su edad y muestre si es mayor de edad o no
 
-const vehiculosBackend=[
-  {
-    nombre:"Corolla",
-    marca:"Toyota",
-    modelo:2014
-  },
-  {
-    nombre:"Duster",
-    marca:"Renault",
-    modelo:2016
-  },
-  {
-    nombre:"Corsa",
-    marca:"Wolkswagen",
-    modelo:2019
-  },
-  {
-    nombre:"S10",
-    marca:"Chevrolet",
-    modelo:2021
-  },
-  {
-    nombre:"Clio",
-    marca:"Renault",
-    modelo:2011
-  },
-  {
-    nombre:"Creta",
-    marca:"Hyunday",
-    modelo:2022
-  },
-  
-
-
-];
 
 const Vehiculos = () => {
 
@@ -64,8 +31,23 @@ const Vehiculos = () => {
   // },[ejecutarConsulta])
 
 
-  useEffect(()=>{setVehiculos(vehiculosBackend);
-  },[]);
+  useEffect(()=>{
+    // Obtener lista de vehiculos desde el backend
+    if(mostrarTabla){
+
+    const options = {method: 'GET', url: 'http://localhost:5000/vehiculos'};
+
+    axios
+      .request(options)
+      .then(function (response) {
+        setVehiculos(response.data)
+      }) 
+      .catch(function (error) {
+        console.error(error);
+      });
+    };       
+       
+  },[mostrarTabla]);
 
   useEffect ( ()=>{    
     if(mostrarTabla){
@@ -108,7 +90,7 @@ const Vehiculos = () => {
   );
 };
 
-const TablaVehiculos =({listaVehiculos})=>{
+const TablaVehiculos =({listaVehiculos, setEjecutarConsulta})=>{
   // useEffect (() => {
   //   console.log("Este es el listado de vehiculos en el componente de table", listaVehiculos)
   // }, [listaVehiculos]);
@@ -154,9 +136,13 @@ const TablaVehiculos =({listaVehiculos})=>{
 
               {vehiculosFiltrados.map((vehiculo)=>{
                 return (
-                <FilaVehiculo key={nanoid()} vehiculo={vehiculo}/>
+                <FilaVehiculo 
+                  key={nanoid()} 
+                  vehiculo={vehiculo}
+                  setEjecutarConsulta={setEjecutarConsulta}
+                  />
                                 
-                )
+                );
               })}
               {/* <tr>
                 <td>SRV4</td>
@@ -181,9 +167,9 @@ const TablaVehiculos =({listaVehiculos})=>{
         {vehiculosFiltrados.map((el)=>{
           return(
             <div className="bg-gray-400 m-2 shadow-xl flex flex-col p-2 rounded-xl">
-              <span>{el.nombre}</span>
-              <span>{el.marca}</span>
-              <span>{el.modelo}</span>
+              <span>{el.name}</span>
+              <span>{el.brand}</span>
+              <span>{el.model}</span>
             </div>
           );
         })}
@@ -194,37 +180,76 @@ const TablaVehiculos =({listaVehiculos})=>{
     </div>);
 };
 
-const FilaVehiculo=({vehiculo})=>{
+const FilaVehiculo=({vehiculo,setEjecutarConsulta})=>{
   const [edit, setEdit]=useState(false);
-  const [infoNuevoVehiculo, setInfoNuevoVehiculo]=useState({
-    nombre:vehiculo.nombre, 
-    marca:vehiculo.marca,
-    modelo:vehiculo.modelo,
-  });
-  const actualizarVehiculo=()=>{
-    console.log(infoNuevoVehiculo);
-    //enviar la informacion la backend
-  }
-
-  const eliminarVehiculo =()=>{
-    //agregar delete del api para borrar en la BD
-  }
-
   const [openDialog, setOpenDialog]=useState(false);
+  const [infoNuevoVehiculo, setInfoNuevoVehiculo]=useState({
+    name:vehiculo.name, 
+    brand:vehiculo.brand,
+    model:vehiculo.model,
+  });
+
+  const actualizarVehiculo= async()=>{
+    //enviar la informacion la backend
+    const options = {
+      method: 'PATCH',
+      url: 'http://localhost:5000/vehiculos/editar',
+      headers: {'Content-Type': 'application/json'},
+      data: { ...infoNuevoVehiculo, id: vehiculo._id},
+      
+    };
+    
+    await axios
+      .request(options)
+      .then(function (response) {
+      console.log(response.data);
+      toast.success('Vehiculo modificado con exito');
+      setEdit(false);
+      // setEjecutarConsulta(true);
+
+    })
+    .catch(function (error) {
+      toast.error('Error modificando el vehiculo');
+      console.error(error);
+    });
+  }
+
+  const eliminarVehiculo =async ()=>{
+    //agregar delete del api para borrar en la BD
+    const options = {
+    method: 'DELETE',
+    url: 'http://localhost:5000/vehiculos/eliminar',
+    headers: {'Content-Type': 'application/json'},
+    data: {id:vehiculo._id},
+};
+
+await axios
+.request(options)
+.then(function (response) {
+  console.log(response.data);
+  toast.success('Vehiculo eliminado con exito');
+  // setEjecutarConsulta(true);
+}).catch(function (error) {
+  console.error(error);
+  toast.error('Error eliminando el vehiculo');
+});
+setOpenDialog (false);
+  }
+
 
   return(
     <tr>
         {edit?(
          <> 
-          <td><input className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" type="text" value={infoNuevoVehiculo.nombre} onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,nombre:e.target.value})}}/></td>
-          <td><input className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" type="text" value={infoNuevoVehiculo.marca} onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,marca:e.target.value})}}/></td>
-          <td><input className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" type="text" value={infoNuevoVehiculo.modelo} onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,modelo:e.target.value})}}/></td>
+          <td><input className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" type="text" value={infoNuevoVehiculo.name} onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,name:e.target.value})}}/></td>
+          <td><input className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" type="text" value={infoNuevoVehiculo.brand} onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,brand:e.target.value})}}/></td>
+          <td><input className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" type="text" value={infoNuevoVehiculo.model} onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,model:e.target.value})}}/></td>
          </> 
         ):(
         <>
-          <td>{vehiculo.nombre}</td>
-          <td>{vehiculo.marca}</td>
-          <td>{vehiculo.modelo}</td>
+          <td>{vehiculo.name}</td>
+          <td>{vehiculo.brand}</td>
+          <td>{vehiculo.model}</td>
         </>)
       }
 
@@ -280,7 +305,7 @@ const FormularioCrearVehiculos =( {setMostrarTabla,listaVehiculos,setVehiculos})
   const form=useRef(null);
  
 
-  const submitForm=(e)=>{
+  const submitForm= async (e)=>{
     e.preventDefault();
     const fd=new FormData(form.current);
 
@@ -289,10 +314,25 @@ const FormularioCrearVehiculos =( {setMostrarTabla,listaVehiculos,setVehiculos})
       nuevoVehiculo[key]=value;
     });
 
+    const options = {
+      method: 'POST',
+      url: 'http://localhost:5000/vehiculos/nuevo',
+      headers: {'Content-Type': 'application/json'},
+      data: {name: nuevoVehiculo.name, brand: nuevoVehiculo.brand, model: nuevoVehiculo.model}
+    };
+    
+    await axios
+    .request(options)
+    .then(function (response) {
+      console.log(response.data);
+      toast.success("Vehiculo agregado con exito!!");
 
-    setMostrarTabla(true)
-    toast.success("Vehiculo agregado con exito!!")
-    setVehiculos([...listaVehiculos, nuevoVehiculo])
+    }).catch(function (error) {
+      console.error(error);
+      toast.error("Error creando un vehiculo!!");
+    });
+
+    setMostrarTabla(true);
 
   }
 
@@ -308,7 +348,7 @@ const FormularioCrearVehiculos =( {setMostrarTabla,listaVehiculos,setVehiculos})
      <label htmlFor="nombre" className="flex flex-col">
        Nombre del vehículo
        <input 
-        name='nombre' 
+        name='name' 
         className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2" 
         type='text' 
         placeholder='Corolla'
@@ -323,7 +363,7 @@ const FormularioCrearVehiculos =( {setMostrarTabla,listaVehiculos,setVehiculos})
         <select  
           
           className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2"
-          name='marca' 
+          name='brand' 
           required
           defaultValue={0}
           >
@@ -340,7 +380,7 @@ const FormularioCrearVehiculos =( {setMostrarTabla,listaVehiculos,setVehiculos})
 
      <label htmlFor="modelo" className="flex flex-col">
        Modelo del vehículo
-       <input name='modelo'
+       <input name='model'
         className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2" 
         type='number' 
         min={2000} 
