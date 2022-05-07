@@ -4,16 +4,8 @@ import PrivateLayout from 'layouts/PrivateLayout';
 import { ToastContainer, toast } from 'react-toastify';
 import Tooltip from '@mui/material/Tooltip';
 import Dialog from '@mui/material/Dialog';
-import axios from "axios";
-
-
-
+import {obtenerVehiculos, crearVehiculo, editarVehiculo, eliminarVehiculo} from 'utils/api.js';
 import 'react-toastify/dist/ReactToastify.css';
-
-
-
-// realizar un formulario que pida a usuario su edad y muestre si es mayor de edad o no
-
 
 const Vehiculos = () => {
 
@@ -21,33 +13,27 @@ const Vehiculos = () => {
   const [textBoton, setTextBoton]=useState('Crear Nuevo Vehiculo');
   const [vehiculos, setVehiculos]=useState([]);
   const [colorBoton, setColorBoton]=useState('violet');
-  // const [ejecutarConsulta, setEjecutarConsulta]= useState(true);
-
-  // useEffect(()=>{
-  //   if (ejecutarConsulta){
-  // funcion que usa api para actualizar cada vez que edito o borro
-  //   }
-
-  // },[ejecutarConsulta])
+  const [ejecutarConsulta, setEjecutarConsulta]=useState(true);
 
 
   useEffect(()=>{
-    // Obtener lista de vehiculos desde el backend
-    if(mostrarTabla){
+    console.log('consulta', ejecutarConsulta);
+    if(ejecutarConsulta){
+      //Esta es la llamada al api get para traer los datos
+      obtenerVehiculos(
+        (response)=>{
+          console.log('la respuesta que se recibio fue:', response);
+          setVehiculos(response.data)},
+        (error)=>{console.error(error)}
+      );
+      setEjecutarConsulta(false);
 
-    const options = {method: 'GET', url: 'http://localhost:5000/vehiculos'};
+    }
+  },[ejecutarConsulta]);
+  
 
-    axios
-      .request(options)
-      .then(function (response) {
-        setVehiculos(response.data)
-      }) 
-      .catch(function (error) {
-        console.error(error);
-      });
-    };       
-       
-  },[mostrarTabla]);
+
+  
 
   useEffect ( ()=>{    
     if(mostrarTabla){
@@ -191,48 +177,50 @@ const FilaVehiculo=({vehiculo,setEjecutarConsulta})=>{
 
   const actualizarVehiculo= async()=>{
     //enviar la informacion la backend
-    const options = {
-      method: 'PATCH',
-      url: 'http://localhost:5000/vehiculos/editar',
-      headers: {'Content-Type': 'application/json'},
-      data: { ...infoNuevoVehiculo, id: vehiculo._id},
+    //Se usa ruta dinamica para indicar a que id queremos editar
+    // const options = {
+    //   method: 'PATCH',
+    //   url: `http://localhost:5000/vehiculos/${vehiculo._id}/`,
+    //   headers: {'Content-Type': 'application/json'},
+    //   data: { ...infoNuevoVehiculo},
       
-    };
-    
-    await axios
-      .request(options)
-      .then(function (response) {
-      console.log(response.data);
-      toast.success('Vehiculo modificado con exito');
-      setEdit(false);
-      // setEjecutarConsulta(true);
+    // };
+    await editarVehiculo(vehiculo._id, infoNuevoVehiculo, 
+      (response)=>{
+        console.log(response.data);
+        toast.success('Vehiculo modificado con exito');
+        setEdit(false);
+        // setEjecutarConsulta(true);
+      },(error)=>{
+        toast.error('Error modificando el vehiculo');
+        console.error(error);
+      });
+    // await axios
+    //   .request(options)
+    //   .then(function (response) {
+    //   console.log(response.data);
+    //   toast.success('Vehiculo modificado con exito');
+    //   setEdit(false);
+    //   // setEjecutarConsulta(true);
 
-    })
-    .catch(function (error) {
-      toast.error('Error modificando el vehiculo');
-      console.error(error);
-    });
+    // })
+    // .catch(function (error) {
+    //   toast.error('Error modificando el vehiculo');
+    //   console.error(error);
+    // });
   }
 
-  const eliminarVehiculo =async ()=>{
-    //agregar delete del api para borrar en la BD
-    const options = {
-    method: 'DELETE',
-    url: 'http://localhost:5000/vehiculos/eliminar',
-    headers: {'Content-Type': 'application/json'},
-    data: {id:vehiculo._id},
-};
+  const deleteVehicle =async ()=>{
 
-await axios
-.request(options)
-.then(function (response) {
-  console.log(response.data);
-  toast.success('Vehiculo eliminado con exito');
-  // setEjecutarConsulta(true);
-}).catch(function (error) {
-  console.error(error);
-  toast.error('Error eliminando el vehiculo');
-});
+    await eliminarVehiculo(vehiculo._id,(response)=>{
+      console.log(response.data);
+      toast.success('Vehiculo eliminado con exito');
+      // setEjecutarConsulta(true);
+    },(error)=>{
+      console.error(error);
+      toast.error('Error eliminando el vehiculo');
+    });
+    
 setOpenDialog (false);
   }
 
@@ -282,7 +270,7 @@ setOpenDialog (false);
           <div className="flex flex-col p-8 justify-center items-center">
             <h1 className="text-violet-700 text-2xl font-bold">¿Estás seguro que eliminar el vehiculo?</h1>
             <div className="flex items-center justify-center w-full my-4">
-              <button onClick={()=>{eliminarVehiculo()}} className="mx-2 px-4 py-2 bg-green-400 text-black rounded-md hover:bg-green-600 shadow-md">SI</button>
+              <button onClick={()=>{deleteVehicle()}} className="mx-2 px-4 py-2 bg-green-400 text-black rounded-md hover:bg-green-600 shadow-md">SI</button>
               <button onClick={()=>{setOpenDialog(false)}} className="mx-2 px-4 py-2 bg-red-400 text-black rounded-md hover:bg-red-600 shadow-md">NO</button>
             </div>
           </div>
@@ -304,7 +292,6 @@ setOpenDialog (false);
 const FormularioCrearVehiculos =( {setMostrarTabla,listaVehiculos,setVehiculos})=>{
   const form=useRef(null);
  
-
   const submitForm= async (e)=>{
     e.preventDefault();
     const fd=new FormData(form.current);
@@ -314,30 +301,22 @@ const FormularioCrearVehiculos =( {setMostrarTabla,listaVehiculos,setVehiculos})
       nuevoVehiculo[key]=value;
     });
 
-    const options = {
-      method: 'POST',
-      url: 'http://localhost:5000/vehiculos/nuevo',
-      headers: {'Content-Type': 'application/json'},
-      data: {name: nuevoVehiculo.name, brand: nuevoVehiculo.brand, model: nuevoVehiculo.model}
-    };
+    await crearVehiculo({
+        name: nuevoVehiculo.name,
+        brand:nuevoVehiculo.brand,
+        model:nuevoVehiculo.model,
+      },(response)=>{
+        console.log(response.data);
+        toast.success('Vehiculo agregado con exito');
+      },
+      (error)=>{
+        console.error(error);
+        toast.error('Error creando un vehiculo');
+      });
     
-    await axios
-    .request(options)
-    .then(function (response) {
-      console.log(response.data);
-      toast.success("Vehiculo agregado con exito!!");
-
-    }).catch(function (error) {
-      console.error(error);
-      toast.error("Error creando un vehiculo!!");
-    });
-
     setMostrarTabla(true);
 
-  }
-
-
-
+  };
 
 
  return (
@@ -402,8 +381,8 @@ const FormularioCrearVehiculos =( {setMostrarTabla,listaVehiculos,setVehiculos})
     </form>
    
  </div>
- );
-};
+)};
+
 
 
 
