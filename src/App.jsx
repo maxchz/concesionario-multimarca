@@ -11,6 +11,8 @@ import Admin from 'pages/admin/index';
 import {darkModeContext} from 'context/darkMode';
 // import  'styles/responsive.css';
 import 'styles/styles.css';
+import { Auth0Provider } from "@auth0/auth0-react";
+
 
 
 function App() {
@@ -21,12 +23,15 @@ function App() {
   }, [darkMode]);
 
   return (
+    <Auth0Provider
+      domain="concecionario-vehiculos.us.auth0.com"
+      clientId="Xv2habmjXRdg075ZReeT26VnpZlH0JLS"
+      redirectUri={window.location.origin}>
+      <div className='App'>
 
-    <div className='App'>
 
+        <darkModeContext.Provider value={{darkMode, setDarkMode}}>
 
-      <darkModeContext.Provider value={{darkMode, setDarkMode}}>
-  
         <BrowserRouter>
             <Routes>
 
@@ -41,9 +46,12 @@ function App() {
                         
             </Routes>
         </BrowserRouter> 
-      </darkModeContext.Provider>
-  
-    </div> 
+</darkModeContext.Provider>
+
+      </div> 
+
+    </Auth0Provider>
+    
   
   );
 
