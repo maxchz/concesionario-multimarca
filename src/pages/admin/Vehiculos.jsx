@@ -5,6 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import Tooltip from '@mui/material/Tooltip';
 import Dialog from '@mui/material/Dialog';
 import {obtenerVehiculos, crearVehiculo, editarVehiculo, eliminarVehiculo} from 'utils/api.js';
+import ReactLoading from 'react-loading';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Vehiculos = () => {
@@ -14,19 +15,34 @@ const Vehiculos = () => {
   const [vehiculos, setVehiculos]=useState([]);
   const [colorBoton, setColorBoton]=useState('violet');
   const [ejecutarConsulta, setEjecutarConsulta]=useState(true);
+  const [loading, setLoading]=useState(false);
 
+
+
+  //agregamos un loading para cuando obtengamos la tabla con los vehiculos, agregamos un useState.
+  //Mientras la pagina trae la tabla cargamos un spiner de loading con la libreria react-loading
 
   useEffect(()=>{
+
+    setLoading(true);
+    const fetchVehiculos = async ()=>{
+      await obtenerVehiculos(
+        (response)=>{
+          console.log('la respuesta que se recibio fue:', response);
+          setVehiculos(response.data);
+          setEjecutarConsulta(false);
+          setLoading(false);
+        },
+
+        (error)=>{console.error(error)
+        }
+      );
+      
+    }
     console.log('consulta', ejecutarConsulta);
     if(ejecutarConsulta){
       //Esta es la llamada al api get para traer los datos
-      obtenerVehiculos(
-        (response)=>{
-          console.log('la respuesta que se recibio fue:', response);
-          setVehiculos(response.data)},
-        (error)=>{console.error(error)}
-      );
-      setEjecutarConsulta(false);
+      fetchVehiculos();
 
     }
   },[ejecutarConsulta]);
@@ -59,7 +75,7 @@ const Vehiculos = () => {
         </div>
         
 
-        {mostrarTabla?(<TablaVehiculos listaVehiculos={vehiculos}/>):(
+        {mostrarTabla?(<TablaVehiculos loading={loading} listaVehiculos={vehiculos}/>):(
         <FormularioCrearVehiculos
            setMostrarTabla={setMostrarTabla} 
            listaVehiculos={vehiculos}
@@ -76,7 +92,7 @@ const Vehiculos = () => {
   );
 };
 
-const TablaVehiculos =({listaVehiculos, setEjecutarConsulta})=>{
+const TablaVehiculos =({loading, listaVehiculos, setEjecutarConsulta})=>{
   // useEffect (() => {
   //   console.log("Este es el listado de vehiculos en el componente de table", listaVehiculos)
   // }, [listaVehiculos]);
@@ -106,8 +122,12 @@ const TablaVehiculos =({listaVehiculos, setEjecutarConsulta})=>{
 
       <h2 className="text-2xl font-normal text-violet-600 w-full">Todos los Vehiculos</h2>
 
-
       <div className="hidden md:flex w-full">
+        {/* agregamos el loading mientras no se carga la tabla */}
+        {loading ? (
+          <ReactLoading type='spokes' color='#AA17C8' height={100} width={100}/>
+          ):(
+
         <table className=" tabla text-center">
             <thead>
               <tr>
@@ -147,6 +167,7 @@ const TablaVehiculos =({listaVehiculos, setEjecutarConsulta})=>{
               </tr> */}
             </tbody>
         </table>
+        )};
       </div>
       {/* Para hacer responsive una tabla debemos usar cards */}
       <div className="flex flex-col w-full m-2 md:hidden">

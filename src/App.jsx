@@ -26,7 +26,9 @@ function App() {
     <Auth0Provider
       domain="concecionario-vehiculos.us.auth0.com"
       clientId="Xv2habmjXRdg075ZReeT26VnpZlH0JLS"
-      redirectUri={window.location.origin}>
+      redirectUri={'http://localhost:3000/admin/'}
+      audience="api-auth-concesionario"
+      >
       <div className='App'>
 
 
