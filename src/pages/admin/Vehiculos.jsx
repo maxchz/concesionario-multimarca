@@ -7,6 +7,7 @@ import Dialog from '@mui/material/Dialog';
 import {obtenerVehiculos, crearVehiculo, editarVehiculo, eliminarVehiculo} from 'utils/api.js';
 import ReactLoading from 'react-loading';
 import 'react-toastify/dist/ReactToastify.css';
+import PrivateComponent from 'components/PrivateComponent';
 
 const Vehiculos = () => {
 
@@ -131,10 +132,13 @@ const TablaVehiculos =({loading, listaVehiculos, setEjecutarConsulta})=>{
         <table className=" tabla text-center">
             <thead>
               <tr>
+                <th>Id</th>
                 <th>Nombre del vehiculo</th>
                 <th>Marca del vehiculo</th>
                 <th>Modelo del vehiculo</th>
-                <th>Editar</th>
+                <PrivateComponent roleList={['admin']}>
+                  <th>Acciones</th>
+                </PrivateComponent>
 
               </tr>
             </thead>
@@ -148,7 +152,7 @@ const TablaVehiculos =({loading, listaVehiculos, setEjecutarConsulta})=>{
                   setEjecutarConsulta={setEjecutarConsulta}
                   />
                                 
-                );
+                )
               })}
               {/* <tr>
                 <td>SRV4</td>
@@ -167,7 +171,7 @@ const TablaVehiculos =({loading, listaVehiculos, setEjecutarConsulta})=>{
               </tr> */}
             </tbody>
         </table>
-        )};
+        )}
       </div>
       {/* Para hacer responsive una tabla debemos usar cards */}
       <div className="flex flex-col w-full m-2 md:hidden">
@@ -178,7 +182,7 @@ const TablaVehiculos =({loading, listaVehiculos, setEjecutarConsulta})=>{
               <span>{el.brand}</span>
               <span>{el.model}</span>
             </div>
-          );
+          )
         })}
         
       </div>
@@ -191,6 +195,7 @@ const FilaVehiculo=({vehiculo,setEjecutarConsulta})=>{
   const [edit, setEdit]=useState(false);
   const [openDialog, setOpenDialog]=useState(false);
   const [infoNuevoVehiculo, setInfoNuevoVehiculo]=useState({
+    _id: vehiculo._id,
     name:vehiculo.name, 
     brand:vehiculo.brand,
     model:vehiculo.model,
@@ -206,12 +211,18 @@ const FilaVehiculo=({vehiculo,setEjecutarConsulta})=>{
     //   data: { ...infoNuevoVehiculo},
       
     // };
-    await editarVehiculo(vehiculo._id, infoNuevoVehiculo, 
+    await editarVehiculo(
+      vehiculo._id,
+      {
+        name: infoNuevoVehiculo.name,
+        brand: infoNuevoVehiculo.brand,
+        model: infoNuevoVehiculo.model,
+      }, 
       (response)=>{
         console.log(response.data);
         toast.success('Vehiculo modificado con exito');
         setEdit(false);
-        // setEjecutarConsulta(true);
+        setEjecutarConsulta(true);
       },(error)=>{
         toast.error('Error modificando el vehiculo');
         console.error(error);
@@ -233,78 +244,120 @@ const FilaVehiculo=({vehiculo,setEjecutarConsulta})=>{
 
   const deleteVehicle =async ()=>{
 
-    await eliminarVehiculo(vehiculo._id,(response)=>{
+    await eliminarVehiculo(
+      vehiculo._id,
+      (response)=>{
       console.log(response.data);
       toast.success('Vehiculo eliminado con exito');
-      // setEjecutarConsulta(true);
-    },(error)=>{
+      setEjecutarConsulta(true);
+    },
+    (error)=>{
       console.error(error);
       toast.error('Error eliminando el vehiculo');
-    });
+    }
+  );
     
 setOpenDialog (false);
-  }
+  };
 
 
   return(
     <tr>
         {edit?(
          <> 
-          <td><input className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" type="text" value={infoNuevoVehiculo.name} onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,name:e.target.value})}}/></td>
-          <td><input className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" type="text" value={infoNuevoVehiculo.brand} onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,brand:e.target.value})}}/></td>
-          <td><input className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" type="text" value={infoNuevoVehiculo.model} onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,model:e.target.value})}}/></td>
+          <td>{infoNuevoVehiculo._id}</td>
+          <td>
+              <input 
+              className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" 
+              type="text" 
+              value={infoNuevoVehiculo.name} 
+              onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,name:e.target.value})}}
+              />
+            </td>
+          <td>
+            <input
+             className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black" 
+             type="text" 
+             value={infoNuevoVehiculo.brand}
+             onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,brand:e.target.value})}}/></td>
+          <td>
+            <input
+             className="bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 text-black"
+             type="text"
+             value={infoNuevoVehiculo.model}
+             onChange={(e)=>{setInfoNuevoVehiculo({...infoNuevoVehiculo,model:e.target.value})}}
+             />
+          </td>
          </> 
         ):(
         <>
+          <td>{vehiculo._id.slice(20)}</td>
           <td>{vehiculo.name}</td>
           <td>{vehiculo.brand}</td>
           <td>{vehiculo.model}</td>
-        </>)
-      }
+        </>
+        )}
 
+
+    <PrivateComponent roleList={['admin']}>
       <td>  
-        <div className="flex w-full justify-around">
-          {edit ? 
-          (
-          <>      
-            <Tooltip title="Confirmar edición" arrow>
-              <i onClick={()=>{actualizarVehiculo()}}  className="fa-solid fa-check text-green-400 hover:text-green-700"></i>
-            </Tooltip>
-            <Tooltip title="Cancelar edición" arrow  placement='bottom'>
-              <i onClick={()=>{setEdit(!edit)}} className="fa-solid fa-ban text-gray-400 hover:text-green-400"></i>
-            </Tooltip>
-          </>  
-            ):(
-          <>    
-            <Tooltip title="Editar vehiculo" arrow  placement='bottom'>
-              <i onClick={()=>{setEdit(!edit)}} className="fa-solid fa-pencil text-gray-400 hover:text-green-400"></i>
-            </Tooltip>
-            <Tooltip title="Eliminar vehiculo" arrow>
-            <i onClick ={()=>{setOpenDialog(true)}} className="fa-solid fa-trash-can text-gray-400 hover:text-red-500"></i>
-            </Tooltip>
-          </>     
-          )}  
-        </div>
-
+          <div className="flex w-full justify-around">
+            {edit ? 
+            (
+            <>      
+              <Tooltip title="Confirmar edición" arrow>
+                <i 
+                onClick={()=>{actualizarVehiculo()}} 
+                className="fa-solid fa-check text-green-400 hover:text-green-700"
+                ></i>
+              </Tooltip>
+              <Tooltip title="Cancelar edición" arrow  placement='bottom'>
+                <i
+                onClick={()=>{setEdit(!edit)}}
+                  className="fa-solid fa-ban text-gray-400 hover:text-green-400"
+                ></i>
+              </Tooltip>
+            </>  
+          ):(
+            <>    
+              <Tooltip title="Editar vehiculo" arrow  placement='bottom'>
+                <i 
+                onClick={()=>{setEdit(!edit)}}
+                className="fa-solid fa-pencil text-gray-400 hover:text-green-400"
+                ></i>
+              </Tooltip>
+              <Tooltip title="Eliminar vehiculo" arrow>
+              <i
+              onClick ={()=>{setOpenDialog(true)}}
+              className="fa-solid fa-trash-can text-gray-400 hover:text-red-500"
+              ></i>
+              </Tooltip>
+            </>     
+            )}  
+          </div>
         {/* Elemento de material UI para mostrar un dialogo emergente frontal para confirmar o no una accion */}
         <Dialog open={openDialog}>
           <div className="flex flex-col p-8 justify-center items-center">
             <h1 className="text-violet-700 text-2xl font-bold">¿Estás seguro que eliminar el vehiculo?</h1>
             <div className="flex items-center justify-center w-full my-4">
-              <button onClick={()=>{deleteVehicle()}} className="mx-2 px-4 py-2 bg-green-400 text-black rounded-md hover:bg-green-600 shadow-md">SI</button>
-              <button onClick={()=>{setOpenDialog(false)}} className="mx-2 px-4 py-2 bg-red-400 text-black rounded-md hover:bg-red-600 shadow-md">NO</button>
+              <button
+               onClick={()=>{deleteVehicle()}}
+               className="mx-2 px-4 py-2 bg-green-400 text-black rounded-md hover:bg-green-600 shadow-md"
+               >
+                 SI
+              </button>
+              <button
+               onClick={()=>{setOpenDialog(false)}}
+               className="mx-2 px-4 py-2 bg-red-400 text-black rounded-md hover:bg-red-600 shadow-md">
+                 NO
+              </button>
             </div>
           </div>
         </Dialog>
-
-        
-
-
-
-
-
-      </td>  
-    </tr>
+      </td> 
+    </PrivateComponent>
+  
+   </tr>
 
   );
 };

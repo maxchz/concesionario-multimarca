@@ -54,7 +54,7 @@ const Ruta =({icono,ruta,nombre, usuario})=> {
       {/* linea de codigo para mostrat foto y nombre del usuario, con datos que devuelve user */}
       {usuario ? (
         <>
-        <img src={usuario.picture} className='h-5 w-5 rounded-full'/>
+        <img src={usuario.picture} className='h-5 w-5 rounded-full' alt='foto usuario'/>
         {usuario.name}
         </>
       ):(

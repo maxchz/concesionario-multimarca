@@ -92,3 +92,33 @@ export const crearVenta= async (data,sucessCallback, errorCallback)=>{
 
 };
 
+// CRUD PARA USUARIO SE LOGEO 
+export const obtenerDatosUsuario= async (sucessCallback, errorCallback)=>{
+    const options={
+        method: 'GET',
+        url: 'http://localhost:5000/usuarios/self',
+        headers: {
+           Authorization: getToken(), //3. ENVIAR TOKEN AL BACKEND
+         }
+       };
+    await axios
+   .request(options)
+   .then(sucessCallback)
+   .catch(errorCallback);
+};
+
+//editar el rol del usuario en admin/usuario
+export const editarUsuario = async (id,data,sucessCallback, errorCallback)=>{
+    const options={
+      method: 'PATCH',
+      url: `http://localhost:5000/usuarios/${id}/`,
+      headers: {'Content-Type': 'application/json',Authorization: getToken()},
+      data,
+    };
+    await axios
+    .request(options)
+    .then(sucessCallback)
+    .catch(errorCallback);
+
+};
+
