@@ -48,7 +48,7 @@ const PrivateLayout = ({children}) => {
       if (isAuthenticated){
         fetchAuth0Token();
       }
-    }, [isAuthenticated, getAccessTokenSilently]);
+    }, [isAuthenticated, getAccessTokenSilently, logout, setUserData]);
 
     // colocamos el loading para cuando esperamos la informacion de autenticacion e la informacion del usuario
     if(isLoading || loadingUserInformation)  return <div className='flex flex-col justify-center items-center'>

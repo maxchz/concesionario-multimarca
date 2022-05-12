@@ -1,8 +1,10 @@
 import React, {useState,useEffect, useRef} from 'react';
 import {obtenerUsuarios, obtenerVehiculos, crearVenta} from 'utils/api.js';
 import { nanoid } from 'nanoid'
-
 import PrivateLayout from 'layouts/PrivateLayout';
+
+
+// FALTA AGREGAR CODIGO PARA VALOR UNITARIO DE VEHICULO EN EL CODIGO DE VEHICULO, formularioCreacion de vehiculos
 
 const Ventas = () => {
   // Todos los vendedores se traeran a partir de un estado
@@ -64,19 +66,19 @@ const Ventas = () => {
       return null;
     }).filter((v)=>v);
 
-    console.log("lista antes de cantidad", listaVehiculos);
+    // console.log("lista antes de cantidad", listaVehiculos);
 
 
 
-    Object.keys(formData)
-    .forEach((k)=>{
-      if(k.includes('cantidad')){
-        const indice =parseInt(k.split('_')[1]);
-        listaVehiculos[indice]["cantidad"]=formData[k];
-     }
-    });
+    // Object.keys(formData)
+    // .forEach((k)=>{
+    //   if(k.includes('cantidad')){
+    //     const indice =parseInt(k.split('_')[1]);
+    //     listaVehiculos[indice]["cantidad"]=formData[k];
+    //  }
+    // });
 
-    console.log("lista despues de cantidad", listaVehiculos);
+    // console.log("lista despues de cantidad", listaVehiculos);
 
 
 
@@ -130,7 +132,10 @@ const Ventas = () => {
           </label>
           {/* Label de los vehiculos, es reeemplazado por una tabla  */}
 
-          <TablaVehiculos vehiculos={vehiculos}  setVehiculos={setVehiculos} setVehiculosTabla={setVehiculosTabla}/>
+          <TablaVehiculos
+             vehiculos={vehiculos}
+             setVehiculos={setVehiculos}
+             setVehiculosTabla={setVehiculosTabla}/>
 
          
 
@@ -162,12 +167,12 @@ const Ventas = () => {
   //  Estado que controla cuantas filas hay en un estado
   const [filasTabla, setFilasTabla]=useState([]);
 
-   useEffect (()=>{
-     console.log(vehiculoAAgregar);
-   },[vehiculoAAgregar]);
+  //  useEffect (()=>{
+  //    console.log(vehiculoAAgregar);
+  //  },[vehiculoAAgregar]);
 
    useEffect (()=>{
-     console.log('filasTabla',filasTabla);
+    //  console.log('filasTabla',filasTabla);
      setVehiculosTabla(filasTabla);
    }, [filasTabla, setVehiculosTabla]);
 
@@ -182,8 +187,19 @@ const Ventas = () => {
      setFilasTabla(filasTabla.filter(v=>v._id!==vehiculoAEliminar._id));
     //  Funcion para eleiminar vehiculo del dropdown cuando se lo agrega ala tabla
      setVehiculos([...vehiculos, vehiculoAEliminar]);
+   };
 
-   }
+   const modificarVehiculo = (vehiculo, cantidad) =>{
+     setFilasTabla(
+       filasTabla.map((ft)=>{
+         if(ft._id === vehiculo.id){
+           ft.cantidad = cantidad;
+           ft.total = vehiculo.valor*cantidad;
+         }
+         return ft;
+       })
+     )
+   };
 
 
 
@@ -211,6 +227,7 @@ const Ventas = () => {
             </select>
         </label>
         <button 
+          type='button'
           onClick={()=>{agregarNuevoVehiculo()}}
           className="col-span-2 bg-green-500 p-2 m-2 rounded-full drop-shadow-md hover:bg-green-400">
           Agregar Vehiculo
@@ -225,6 +242,8 @@ const Ventas = () => {
               <th>Marca</th>
               <th>Modelo</th>
               <th>Cantidad</th>
+              <th>Valor Unitario</th>
+              <th>Total</th>
               <th>Eliminar</th>
               <th className="hidden">Input</th>
             </tr>
@@ -232,23 +251,32 @@ const Ventas = () => {
           <tbody>
             {filasTabla.map((el, index)=>{
               return(
-                <tr>
-                  <td>{el._id}</td>
-                  <td>{el.name}</td>
-                  <td>{el.brand}</td>
-                  <td>{el.model}</td>
-                  <td>
-                    <label htmlFor={`valor_${index}`}>
-                      <input className="text-black" type='number' name={`cantidad_${index}`} required/>
-                    </label>
-                  </td>
-                  <td>
-                    {/* En el onClcik necesitamos una funcion que elimine la fila del estado */}
-                    <i onClick={()=>eliminarVehiculo(el)}className='fas fa-minus text-red-500 cursor-ponter'/>
-                  </td>
-                  {/* Se coloca este input para que capture las filas con los datos de los vehiculos agregados de la tabla */}
-                  <input hidden defaultValue={el._id} name={`vehiculo ${index}`}/>
-                </tr>
+                <FilaVehiculo
+                  key={el._id}
+                  veh={el}
+                  index={index}
+                  eliminarVehiculo={eliminarVehiculo}
+                  modificarVehiculo={modificarVehiculo}
+                  />
+                    
+
+                // <tr>
+                //   <td>{el._id}</td>
+                //   <td>{el.name}</td>
+                //   <td>{el.brand}</td>
+                //   <td>{el.model}</td>
+                //   <td>
+                //     <label htmlFor={`valor_${index}`}>
+                //       <input className="text-black" type='number' name={`cantidad_${index}`} required/>
+                //     </label>
+                //   </td>
+                //   <td>
+                //     {/* En el onClcik necesitamos una funcion que elimine la fila del estado */}
+                //     <i onClick={()=>eliminarVehiculo(el)}className='fas fa-minus text-red-500 cursor-ponter'/>
+                //   </td>
+                //   {/* Se coloca este input para que capture las filas con los datos de los vehiculos agregados de la tabla */}
+                //   <input hidden defaultValue={el._id} name={`vehiculo ${index}`}/>
+                // </tr>
               );
             })}
 
@@ -257,6 +285,55 @@ const Ventas = () => {
         </table>
      </div> 
   
+   );
+ };
+
+ const FilaVehiculo = ({ veh, index, eliminarVehiculo, modificarVehiculo})=>{
+   const [vehiculo, setVehiculo]=useState(veh);
+   useEffect (()=>{
+     console.log('veh', vehiculo);
+   },[vehiculo]);
+   return (
+      <tr>
+        <td>{vehiculo._id}</td>
+        <td>{vehiculo.name}</td>
+        <td>{vehiculo.brand}</td>
+        <td>{vehiculo.model}</td>
+        <td>
+          <label htmlFor={`valor_${index}`}>
+            <input className="text-black"
+             type='number' 
+             name={`cantidad_${index}`}
+             value={vehiculo.cantidad}
+             onChange={(e)=>{
+               modificarVehiculo(vehiculo, e.target.value=== ''?'0':e.target.value);
+               setVehiculo({
+                 ...vehiculo,
+                 cantidad:e.target.value=== ''?'0':e.target.value,
+                 total:
+                  parseFloat(vehiculo.valor)*
+                  parseFloat(e.target.value===''?'0':e.target.value),
+               });
+             }} 
+             />
+          </label>
+        </td>
+        <td>{vehiculo.valor}</td>
+        <td>{parseFloat(vehiculo.total ?? 0)}</td>
+        <td>
+          {/* En el onClcik necesitamos una funcion que elimine la fila del estado */}
+          <i 
+          onClick={()=>eliminarVehiculo(vehiculo)}
+          className='fas fa-minus text-red-500 cursor-ponter'/>
+        </td>
+        {/* Se coloca este input para que capture las filas con los datos de los vehiculos agregados de la tabla */}
+        <td className='hidden'>  
+          <input 
+          hidden
+          defaultValue={vehiculo._id} 
+          name={`vehiculo_${index}`}/>
+        </td>  
+      </tr>
    );
  };
 
