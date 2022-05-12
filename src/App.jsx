@@ -11,6 +11,7 @@ import Admin from 'pages/admin/index';
 import Usuarios from 'pages/admin/Usuarios';
 import {darkModeContext} from 'context/darkMode';
 import {UserContext} from 'context/userContext';
+import PriveteRoute from 'components/PriveteRoute';
 
 // import  'styles/responsive.css';
 import 'styles/styles.css';
@@ -50,15 +51,41 @@ function App() {
                   <Route path='/registro' element={<Registro/>} />
                   <Route path='/admin' element={<Admin/>}/>
                   <Route path='/admin/clientes' element={<Clientes/>}/>
-                  <Route path='/admin/vehiculos' element={<Vehiculos/>}/>
-                  <Route path='/admin/ventas' element={<Ventas/>}/>
-                  <Route path='/admin/usuarios' element={<Usuarios/>}/>
+                  <Route path='/' element={<Index/>} /> 
 
-
-                  <Route path='/' element={<Index/>} />                
-                            
+                  
+                  
+                    <Route path='/admin/ventas' element={<PriveteRoute roleList={['admin','vendedor']}> <Ventas/></PriveteRoute>}/>
+                    <Route path='/admin/vehiculos' element={<PriveteRoute roleList={['admin']}><Vehiculos/></PriveteRoute>}/>
+                    <Route path='/admin/usuarios' element={<PriveteRoute roleList={['admin']}><Usuarios/></PriveteRoute>}/> 
+                   
+                             
+                       
                 </Routes>
+
+                {/* <PriveteRoute roleList={['admin']}>
+                  <Routes>
+                    <Route path='/admin/ventas' element={<Ventas/>}/>
+                    <Route path='/admin/vehiculos' element={<Vehiculos/>}/>
+                    <Route path='/admin/usuarios' element={<Usuarios/>}/>
+                  </Routes>
+                </PriveteRoute> */}
+             
+
+              
             </BrowserRouter> 
+
+            {/* <BrowserRouter>
+                <PriveteRoute roleList={['admin', 'vendedor']}>
+                  <Routes>
+                    <Route path='/admin/ventas' element={<Ventas/>}/>
+                  </Routes>
+                </PriveteRoute>
+            </BrowserRouter> */}
+
+
+
+
           </darkModeContext.Provider>
 
         </UserContext.Provider>

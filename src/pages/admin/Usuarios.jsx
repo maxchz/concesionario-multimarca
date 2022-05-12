@@ -35,6 +35,15 @@ const Usuarios = () => {
                     <button className="bg-violet-500 text-black"> Hola </button>
                 </PrivateComponent>
                 <table className="tabla">
+                    <thead>
+                        <tr>
+                            <td>Nombre</td>
+                            <td>Email</td>
+                            <td>Estado</td>
+                            <td>Rol</td>
+                        </tr>
+                    </thead>
+
                     <tbody>
                         {usuarios.map((user)=>{
                             return (
@@ -42,7 +51,10 @@ const Usuarios = () => {
                                     <td>{user.name}</td>
                                     <td>{user.email}</td>
                                     <td>
-                                        <RolesUsuario user={user}/>
+                                        <EstadoUsuarios user={user}/>
+                                    </td>
+                                    <td>
+                                         <RolesUsuario user={user}/>
                                     </td>
                                 </tr>
                             );
@@ -82,12 +94,43 @@ const  RolesUsuario = ({user})=>{
         className='text-black'
         value={rol}
         onChange={(e)=>{setRol(e.target.value)}}>
+            <option value='' disabled>Seleccione un rol</option>
             <option value='admin'>Admin</option>
             <option value='vendedor'>Vendedor</option>
-            <option value='inactivo'>Inactivo</option>
+            <option value='sin rol'>Sin rol</option>
         </select>
     );
 };
+
+// nuevo elemento para bloquear que un usuario haga login
+const EstadoUsuarios =({user})=>{
+    const [estado, setEstado]=useState(user.estado ?? '');
+    useEffect(()=>{
+        const editUsuario= async ()=>{
+            await editarUsuario(user._id, {estado}, 
+                (res)=>{
+                    console.log(res);
+                },
+                (err)=>{
+                    console.error(err);
+                }
+               );
+        };
+        if(user.estado !==estado){
+            editUsuario();
+        };
+    },[estado, user]);
+
+    return (
+        <select value={estado} onChange={(e)=>{setEstado(e.target.value)}}>
+            <option value='' disabled>Seleccione  un estado</option>
+            <option className="text-green-500" value="autorizado">Autorizado</option>
+            <option className="text-gray-500" value="pensiente">Pendiente</option>
+            <option className="text-red-500" value="rechazado">Rechazado</option>
+        </select>
+   )
+
+}
 
 
 

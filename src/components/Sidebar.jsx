@@ -3,6 +3,8 @@ import {Link} from 'react-router-dom';
 import useActiveRoute from 'hooks/useActiveRoute';
 import ImagenLogo from 'components/ImagenLogo';
 import { useAuth0 } from "@auth0/auth0-react";
+import PrivateComponent from 'components/PrivateComponent';
+
 
 
 const Sidebar = () => {
@@ -12,7 +14,7 @@ const Sidebar = () => {
   
   //Funcion para borrar el localSotrage cunado el usuario cierra sesion
   const cerrarSesion=()=>{
-    logout({ returnTo: window.location.origin });
+    logout({ returnTo: 'http://localhost:3000/admin'});
     localStorage.setItem('token', null);
 
   }
@@ -27,9 +29,18 @@ const Sidebar = () => {
 
         <div className="my-4">
           <Ruta icono='fa-solid fa-user' ruta='/admin/perfil' nombre='Perfil' usuario={user} />
-          <Ruta icono='fa-solid fa-car-side' ruta='/admin/vehiculos' nombre='Vehiculos' />
-          <Ruta icono='fa-solid fa-cash-register' ruta='/admin/ventas' nombre='Ventas' />
-          <Ruta icono='fa-solid fa-users' ruta='/admin/usuarios' nombre='Usuarios' />             
+          <PrivateComponent roleList={['admin']}>
+            <Ruta icono='fa-solid fa-car-side' ruta='/admin/vehiculos' nombre='Vehiculos' />
+          </PrivateComponent>
+
+          <PrivateComponent roleList={['admin','vendedor']}>
+            <Ruta icono='fa-solid fa-cash-register' ruta='/admin/ventas' nombre='Ventas' />
+          </PrivateComponent>
+
+          <PrivateComponent roleList={['admin']}>
+            <Ruta icono='fa-solid fa-users' ruta='/admin/usuarios' nombre='Usuarios' />
+          </PrivateComponent>
+             
         </div>      
         <button 
         onClick={() =>cerrarSesion() }
