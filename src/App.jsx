@@ -36,7 +36,7 @@ function App() {
     <Auth0Provider
       domain="concecionario-vehiculos.us.auth0.com"
       clientId="Xv2habmjXRdg075ZReeT26VnpZlH0JLS"
-      redirectUri={'http://localhost:3000/admin/'}
+      redirectUri={'https://thawing-depths-36871.herokuapp.com/admin/'}
       audience="api-auth-concesionario"
       >
       <div className='App'>
