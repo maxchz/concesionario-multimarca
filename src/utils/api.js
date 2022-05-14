@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Variable global para baseURL con  url de heroku
 // const baseURL= 'http://localhost:5000';
-const baseURL= 'https://secret-shelf-03392.herokuapp.com/';
+const baseURL= 'https://secret-shelf-03392.herokuapp.com';
 
 
 //funcion para traer el token que esta guardado en el localstorage
@@ -72,7 +72,7 @@ export const eliminarVehiculo= async (id,sucessCallback, errorCallback)=>{
 export const obtenerUsuarios= async (sucessCallback, errorCallback)=>{
      const options={
          method: 'GET',
-         url: `${baseURL}/usuarios`,
+         url: `${baseURL}/usuarios/`,
          headers: {
             Authorization: getToken(),
           }
