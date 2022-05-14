@@ -38,7 +38,7 @@ const PrivateLayout = ({children}) => {
         (err)=>{
         console.log('err',err);
         setLoadingUserInformation(false);
-        logout({ returnTo: 'https://thawing-depths-36871.herokuapp.com/admin'});
+        logout({ returnTo: 'http://localhost:3000/admin'});
 
 
         }
