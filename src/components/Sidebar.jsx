@@ -14,7 +14,7 @@ const Sidebar = () => {
   
   //Funcion para borrar el localSotrage cunado el usuario cierra sesion
   const cerrarSesion=()=>{
-    logout({ returnTo: 'http://localhost:3000/admin'});
+    logout({ returnTo: 'https://thawing-depths-36871.herokuapp.com/admin'});
     localStorage.setItem('token', null);
 
   }
