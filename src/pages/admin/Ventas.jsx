@@ -166,6 +166,7 @@ const Ventas = () => {
    const [vehiculoAAgregar, setVehiculoAAgregar]=useState({});
   //  Estado que controla cuantas filas hay en un estado
   const [filasTabla, setFilasTabla]=useState([]);
+  const [totalVentas, setTotalVentas] = useState(0);
 
   //  useEffect (()=>{
   //    console.log(vehiculoAAgregar);
@@ -192,7 +193,7 @@ const Ventas = () => {
    const modificarVehiculo = (vehiculo, cantidad) =>{
      setFilasTabla(
        filasTabla.map((ft)=>{
-         if(ft._id === vehiculo.id){
+         if(ft._id === vehiculo._id){
            ft.cantidad = cantidad;
            ft.total = vehiculo.valor*cantidad;
          }
@@ -200,6 +201,14 @@ const Ventas = () => {
        })
      )
    };
+
+   useEffect (()=>{
+     let total=0;
+     filasTabla.forEach((f)=>{
+       total=total+f.total;
+     });
+     setTotalVentas(total);
+   },[filasTabla])
 
 
 
@@ -283,6 +292,7 @@ const Ventas = () => {
           </tbody>
           
         </table>
+        <span>Total de la ventas: {totalVentas}</span>
      </div> 
   
    );
